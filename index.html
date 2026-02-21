@@ -424,6 +424,75 @@
   }
 
   /* ═══════════════════════════════════════
+     INTERACTIVE FORMATS INTERSTITIAL
+     ═══════════════════════════════════════ */
+
+  .formats-interstitial {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 0 3.5rem;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    background: var(--bg);
+  }
+
+  .formats-intro {
+    font-family: 'Caveat', cursive;
+    font-size: 1.15rem;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+  }
+
+  .formats-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+  }
+
+  .format-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1rem;
+    border-radius: 100px;
+    border: 1px solid var(--cream-faint);
+    background: rgba(250, 245, 238, 0.03);
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: rgba(250, 245, 238, 0.7);
+    cursor: default;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.3s ease, background 0.3s ease;
+  }
+
+  .format-chip.visible { opacity: 1; transform: translateY(0); }
+
+  .format-chip:hover {
+    border-color: rgba(201, 169, 110, 0.4);
+    background: rgba(201, 169, 110, 0.06);
+    color: var(--cream);
+  }
+
+  .format-chip .fc-emoji { font-size: 0.9rem; }
+
+  .formats-note {
+    margin-top: 1.25rem;
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: rgba(250, 245, 238, 0.35);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 500px) {
+    .format-chip { font-size: 0.75rem; padding: 0.45rem 0.8rem; }
+    .formats-intro { font-size: 1rem; }
+  }
+
+  /* ═══════════════════════════════════════
      INTELLIGENCE LAYER
      ═══════════════════════════════════════ */
 
@@ -1678,6 +1747,19 @@ function checkPw(){
     </div>
   </div>
 
+  <!-- Interactive Formats -->
+  <div class="formats-interstitial">
+    <div class="formats-intro">Not just video.<br>High-completion interactive pages that double as data collection.</div>
+    <div class="formats-grid">
+      <div class="format-chip"><span class="fc-emoji">📊</span> Pulse Polls — swipe this or that</div>
+      <div class="format-chip"><span class="fc-emoji">🧬</span> Find Your Type quiz</div>
+      <div class="format-chip"><span class="fc-emoji">🔥</span> Knowledge quiz with streaks</div>
+      <div class="format-chip"><span class="fc-emoji">💬</span> Live Q&A with one-tap questions</div>
+      <div class="format-chip"><span class="fc-emoji">⚡</span> Challenge cards</div>
+    </div>
+    <p class="formats-note">Every swipe, every answer, every completion is a behavioral signal feeding the intelligence layer. All end with the same capture form.</p>
+  </div>
+
   <!-- Stage 2 -->
   <div class="stage">
     <div class="stage-content">
@@ -2728,7 +2810,7 @@ function checkPw(){
     });
   },{threshold:0.15});
 
-  document.querySelectorAll('.reveal, .stage, .p-demand-item, .track-group, .deliv-card').forEach(el=>obs.observe(el));
+  document.querySelectorAll('.reveal, .stage, .p-demand-item, .track-group, .deliv-card, .format-chip').forEach(el=>obs.observe(el));
 
   // ─── BUDGET BAR ANIMATION ───
   const barObs = new IntersectionObserver((entries) => {
