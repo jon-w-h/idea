@@ -360,6 +360,138 @@
   .funnel-bar span { position: relative; z-index: 1; white-space: nowrap; }
 
   /* Flow diagram */
+  /* Architecture flow diagram */
+  .arch-flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .arch-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .arch-row-split {
+    gap: 1rem;
+  }
+
+  .arch-node {
+    border-radius: 10px;
+    padding: 0.6rem 0.9rem;
+    text-align: center;
+    border: 1px solid rgba(107,127,94,0.25);
+    background: rgba(107,127,94,0.08);
+    transition: all 0.3s ease;
+    flex: 1;
+    max-width: 180px;
+  }
+
+  .arch-node:hover {
+    border-color: rgba(107,127,94,0.5);
+    background: rgba(107,127,94,0.15);
+  }
+
+  .arch-db {
+    border-color: rgba(107,127,94,0.5);
+    background: rgba(107,127,94,0.15);
+    max-width: 220px;
+    padding: 0.8rem 1rem;
+  }
+
+  .arch-icon {
+    font-size: 1.1rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .arch-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--cream);
+    letter-spacing: 0.02em;
+  }
+
+  .arch-sub {
+    font-size: 0.6rem;
+    font-weight: 300;
+    color: rgba(250,245,238,0.4);
+    margin-top: 0.1rem;
+  }
+
+  .arch-tables {
+    display: flex;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+    justify-content: center;
+  }
+
+  .arch-table {
+    font-size: 0.5rem;
+    font-weight: 500;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(250,245,238,0.06);
+    border: 1px solid rgba(250,245,238,0.1);
+    color: rgba(250,245,238,0.5);
+  }
+
+  .arch-connector {
+    font-size: 1rem;
+    color: rgba(107,127,94,0.5);
+    flex-shrink: 0;
+  }
+
+  .arch-down {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.3rem 0;
+  }
+
+  .arch-down-line {
+    width: 1px;
+    height: 16px;
+    background: linear-gradient(to bottom, rgba(107,127,94,0.5), rgba(107,127,94,0.2));
+  }
+
+  .arch-down-label {
+    font-size: 0.5rem;
+    font-weight: 500;
+    color: rgba(107,127,94,0.6);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-top: 0.15rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .arch-split {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    width: 100%;
+  }
+
+  .arch-split-arm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.2rem 0;
+  }
+
+  @media (max-width: 500px) {
+    .arch-node { padding: 0.45rem 0.6rem; max-width: 140px; }
+    .arch-label { font-size: 0.7rem; }
+    .arch-sub { font-size: 0.5rem; }
+    .arch-tables { flex-direction: column; gap: 0.2rem; }
+    .arch-split { gap: 2rem; }
+    .arch-db { max-width: 170px; }
+    .arch-icon { font-size: 0.9rem; }
+  }
+
   .flow-diagram { display: flex; flex-direction: column; gap: 0.75rem; align-items: center; }
   .flow-node {
     padding: 0.75rem 1.5rem;
@@ -1764,32 +1896,97 @@ function checkPw(){
   <div class="stage">
     <div class="stage-content">
       <div class="stage-number sage">Stage 02 — Capture</div>
-      <h2>Decoupled Petition Architecture</h2>
-      <p>Video links to a themed petition page with hidden tracking parameters baked into the URL — 
-        source video, topic, campaign. When someone signs, the form bundles their visible inputs (name, email, zip) 
-        with the hidden data and fires a webhook to Zapier.</p>
-      <p>Zapier injects the complete, structured record into Airtable — the secure, 501(c)(4)-compliant 
-        system of record and intelligence layer. Only the bare minimum (email + segment tag) gets pushed downstream 
-        to the email tool. The master database never touches a third-party email client.</p>
+      <h2>Decoupled Capture Architecture</h2>
+      <p>Video links to a custom HTML/React landing page with hidden UTM parameters baked into the URL — 
+        source video, topic, campaign. Whether someone signs a petition, completes a quiz, swipes a pulse poll, 
+        or taps through a challenge card, the page fires a direct secure 
+        INSERT via JS API into Supabase — no middleware, no Zapier.</p>
+      <p>Supabase (Postgres with row-level security) is the owned system of record. A database trigger on new 
+        user creation fires Make.com, which pushes only the contact and segment tag to MailerLite for the 
+        standard 5-email drip. A separate database function watches zip code counts — when a threshold is met, 
+        it pushes a "threshold_met" tag and WhatsApp link back through Make.com to MailerLite. 
+        The master database never touches a third-party email client.</p>
+      <p>Retool provides the internal team dashboard — secure read-only access to signer data, 
+        threshold alerts, and manual actions like creating local pod WhatsApp links.</p>
       <div class="stage-tags">
-        <span class="tag sage">AI-coded pages</span>
-        <span class="tag sage">Webhook → Zapier</span>
-        <span class="tag sage">Airtable (system of record)</span>
-        <span class="tag sage">MailerLite / ActiveCampaign</span>
+        <span class="tag sage">Supabase (Postgres + RLS)</span>
+        <span class="tag sage">Direct JS API insert</span>
+        <span class="tag sage">Make.com automation</span>
+        <span class="tag sage">MailerLite</span>
+        <span class="tag sage">Retool dashboard</span>
       </div>
     </div>
     <div class="stage-visual">
-      <div class="visual-card vc-sage">
-        <div class="flow-diagram">
-          <div class="flow-node sage-node">🎬 Video (hidden UTM params)</div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-node sage-node">📝 Petition Page → Webhook</div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-node sage-node">⚡ Zapier / Make.com</div>
-          <div class="flow-arrow">↓</div>
-          <div class="flow-node sage-node" style="border-color:rgba(107,127,94,0.5); background:rgba(107,127,94,0.2);">🔒 Airtable (master database)</div>
-          <div class="flow-arrow">↓ email + tag only</div>
-          <div class="flow-node sage-node">📬 Email tool (drip sequence)</div>
+      <div class="visual-card vc-sage" style="padding:1.5rem 1rem;">
+        <div class="arch-flow">
+          <!-- Row 1: Source -->
+          <div class="arch-row">
+            <div class="arch-node arch-source">
+              <div class="arch-icon">🎬</div>
+              <div class="arch-label">Social Video</div>
+              <div class="arch-sub">Click + UTMs</div>
+            </div>
+            <div class="arch-connector">→</div>
+            <div class="arch-node arch-page">
+              <div class="arch-icon">⟨/⟩</div>
+              <div class="arch-label">Landing Page</div>
+              <div class="arch-sub">Form / Quiz</div>
+            </div>
+          </div>
+          <!-- Arrow down -->
+          <div class="arch-down">
+            <div class="arch-down-line"></div>
+            <div class="arch-down-label">Direct JS API Insert</div>
+          </div>
+          <!-- Row 2: Database -->
+          <div class="arch-row">
+            <div class="arch-node arch-db">
+              <div class="arch-icon">🔒</div>
+              <div class="arch-label">Supabase</div>
+              <div class="arch-sub">Postgres · RLS · Real-time</div>
+              <div class="arch-tables">
+                <span class="arch-table">Users Table</span>
+                <span class="arch-table">Events Table</span>
+              </div>
+            </div>
+          </div>
+          <!-- Split arrows -->
+          <div class="arch-split">
+            <div class="arch-split-arm arch-split-left">
+              <div class="arch-down-line"></div>
+              <div class="arch-down-label">DB Trigger</div>
+            </div>
+            <div class="arch-split-arm arch-split-right">
+              <div class="arch-down-line"></div>
+              <div class="arch-down-label">Threshold Alert</div>
+            </div>
+          </div>
+          <!-- Row 3: Automation + Dashboard -->
+          <div class="arch-row arch-row-split">
+            <div class="arch-node arch-auto">
+              <div class="arch-icon">⚡</div>
+              <div class="arch-label">Make.com</div>
+              <div class="arch-sub">Automation logic</div>
+            </div>
+            <div class="arch-node arch-dash">
+              <div class="arch-icon">📊</div>
+              <div class="arch-label">Retool</div>
+              <div class="arch-sub">Team dashboard</div>
+            </div>
+          </div>
+          <!-- Arrow down -->
+          <div class="arch-down">
+            <div class="arch-down-line"></div>
+            <div class="arch-down-label">Contact + Tag only</div>
+          </div>
+          <!-- Row 4: Email -->
+          <div class="arch-row">
+            <div class="arch-node arch-email">
+              <div class="arch-icon">📬</div>
+              <div class="arch-label">MailerLite</div>
+              <div class="arch-sub">5-email drip · Pod alerts</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1837,14 +2034,15 @@ function checkPw(){
     <div class="stage-content">
       <div class="stage-number sky">Stage 04 — Decentralize</div>
       <h2>Self-Organizing Chapters</h2>
-      <p>Airtable watches a rollup field counting signers per metro area. When a cluster crosses the threshold, 
-        an automation fires — pushing a "chapter_ready" tag downstream to the email tool, which delivers 
-        a single message: <em>"87 people near you signed. You're not alone. Want to meet them?"</em></p>
+      <p>A Supabase database function watches zip code counts in real time. When a cluster crosses the threshold, 
+        it pushes a "threshold_met" tag through Make.com to MailerLite, which delivers 
+        a single message: <em>"87 people near you signed. You're not alone. Want to meet them?"</em> — 
+        with a WhatsApp link to their local pod.</p>
       <p>At 50 signers, an awareness email. At 100, the full chapter starter kit — talking points, 
         a first-meeting agenda, shared identity assets. At 250, a regional coordinator invitation. 
-        Each threshold is a different automation watching the same number. The movement builds itself.</p>
+        Each threshold is a different database function watching the same count. The movement builds itself.</p>
       <div class="stage-tags">
-        <span class="tag sky">Airtable rollup triggers</span>
+        <span class="tag sky">Supabase threshold triggers</span>
         <span class="tag sky">Escalation ladder</span>
         <span class="tag sky">Chapter playbook</span>
         <span class="tag sky">Public chapter map</span>
